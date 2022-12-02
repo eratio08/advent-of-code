@@ -1,7 +1,7 @@
 package main
 
 import (
-	"eratio08/advent-of-code/2022/helpers"
+	"aoc2022/helpers"
 	"fmt"
 	"log"
 	"os"
