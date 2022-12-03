@@ -18,5 +18,6 @@ func ReadFile(input string) string {
 
 func ReadLines(input string) []string {
 	content := ReadFile(input)
-	return strings.Split(content, "\n")
+	lines := strings.Split(content, "\n")
+	return lines[:len(lines)-1] // drop empty last line
 }
