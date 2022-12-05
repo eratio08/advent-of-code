@@ -19,10 +19,7 @@ func (this *Range) fullyIncludes(other *Range) bool {
 }
 
 func (this *Range) overlap(other *Range) bool {
-	return this.fullyIncludes(other) ||
-		other.fullyIncludes(this) ||
-		/*  */
-		(this.start <= other.start && this.end >= other.start) ||
+	return (this.start <= other.start && this.end >= other.start) ||
 		(other.start <= this.start && other.end >= this.start)
 }
 
