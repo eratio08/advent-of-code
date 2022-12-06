@@ -1,6 +1,6 @@
 # 🎄 Advent Of Code 🌟
 
-Collecting yearly [Advent of Code](https://adventofcode.com/) solution attempts.
+Collection of yearly [Advent of Code](https://adventofcode.com/) solution attempts.
 
 # [2022](https://adventofcode.com/2022)
 
