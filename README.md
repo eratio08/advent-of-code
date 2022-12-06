@@ -1,4 +1,4 @@
-# Advent Of Code
+# 🎄 Advent Of Code 🌟
 
 Collecting yearly [Advent of Code](https://adventofcode.com/) solution attempts.
 
