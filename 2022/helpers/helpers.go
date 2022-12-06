@@ -2,7 +2,6 @@ package helpers
 
 import (
 	"log"
-	"math"
 	"os"
 	"strings"
 )
@@ -60,15 +59,31 @@ func TakeWhile[I any](l []I, p func(i int, e I) bool) []I {
 	return res
 }
 
-func Take[I any](l []I, n int) []I {
-	res := make([]I, 0, n)
-	for i := 0; i < int(math.Max(float64(n), float64(len(l)))); i++ {
-		res = append(res, l[i])
+func Take[I any](l []I, n int) ([]I, []I) {
+	return l[:n], l[n:]
+}
+
+func Drop[I any](l []I, n int) []I {
+	return l[len(l)-n:]
+}
+
+func Windowed[I any](l []I, n int) [][]I {
+	res := make([][]I, 0, (len(l)/n)+1)
+	for i, j := 0, n; j <= len(l); i, j = i+1, j+1 {
+		window := l[i:j]
+		res = append(res, window)
 	}
 
 	return res
 }
 
-// func Drop[I any](l []I, n int) []I {
+type Set[E comparable] map[E]bool
 
-// }
+func NewSet[E comparable](s []E) Set[E] {
+	m := make(map[E]bool)
+	for _, e := range s {
+		m[e] = true
+	}
+
+	return m
+}

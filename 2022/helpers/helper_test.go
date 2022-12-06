@@ -29,3 +29,21 @@ func TestFilter(t *testing.T) {
 
 	assert.Equal(t, []int{2, 4, 6}, res, "Filter should filter out odd numbers")
 }
+
+func TestWindowed(t *testing.T) {
+	res := Windowed([]int{1, 2, 3, 4, 5}, 4)
+
+	assert.Equal(t, [][]int{{1, 2, 3, 4}, {2, 3, 4, 5}}, res)
+}
+
+func TestWindowedTooSmall(t *testing.T) {
+	res := Windowed([]int{1}, 4)
+
+	assert.Equal(t, [][]int{}, res)
+}
+
+func TestWindowedUneven(t *testing.T) {
+	res := Windowed([]int{1, 2, 3, 4, 5}, 3)
+
+	assert.Equal(t, [][]int{{1, 2, 3}, {2, 3, 4}, {3, 4, 5}}, res)
+}
