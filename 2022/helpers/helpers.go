@@ -3,6 +3,7 @@ package helpers
 import (
 	"log"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -22,28 +23,61 @@ func ReadLines(input string) []string {
 	return lines[:len(lines)-1] // drop empty last line
 }
 
-func Foldr[I any, O any](a O, l []I, fn func(int, O, I) O) O {
-	for i, e := range l {
-		a = fn(i, a, e)
+func Foldr[A any, B any](f func(A, B) B) func(B) func([]A) B {
+	return func(b B) func([]A) B {
+		return func(as []A) (out B) {
+			out = b
+			for _, a := range as {
+				out = f(a, out)
+			}
+			return out
+		}
+	}
+}
+
+func Map[A any, B any](f func(A) B) func([]A) []B {
+	return func(as []A) (out []B) {
+		merge := func(a A, b []B) []B {
+			return append(b, f(a))
+		}
+		return Foldr(merge)(out)(as)
+	}
+}
+
+func Filter[A any](p func(A) bool) func([]A) []A {
+	return func(as []A) (out []A) {
+		filter := func(a A, res []A) []A {
+			if p(a) {
+				return append(res, a)
+			}
+			return res
+		}
+		return Foldr(filter)(out)(as)
+	}
+}
+
+func Sum(is []int) int {
+	sum := func(i int, s int) int {
+		return s + i
+	}
+	return Foldr(sum)(0)(is)
+}
+
+func Values[K comparable, V any](m map[K]V) (out []V) {
+	for _, v := range m {
+		out = append(out, v)
 	}
 
-	return a
+	return out
 }
 
-func Map[I any, O any](l []I, fn func(int, I) O) []O {
-	return Foldr(make([]O, 0, len(l)), l, func(i int, a []O, l I) []O {
-		a = append(a, fn(i, l))
-		return a
-	})
-}
+func ToInt(s string) int {
+	val, err := strconv.Atoi(s)
+	if err != nil {
+		panic(err)
+	}
 
-func Filter[I any](l []I, p func(int, I) bool) []I {
-	return Foldr(make([]I, 0, len(l)), l, func(i int, a []I, l I) []I {
-		if p(i, l) {
-			a = append(a, l)
-		}
-		return a
-	})
+	return val
 }
 
 func TakeWhile[I any](l []I, p func(i int, e I) bool) []I {
