@@ -50,3 +50,17 @@ func TestWindowedUneven(t *testing.T) {
 
 	assert.Equal(t, [][]int{{1, 2, 3}, {2, 3, 4}, {3, 4, 5}}, res)
 }
+
+func TestMakeRange(t *testing.T) {
+	r1 := MakeRange(0, 4)
+	r2 := MakeRange(4, 0)
+
+	assert.Equal(t, []int{0, 1, 2, 3, 4}, r1)
+	assert.Equal(t, []int{4, 3, 2, 1, 0}, r2)
+}
+
+func TestReverse(t *testing.T) {
+	r1 := Reverse([]int{1, 2, 3})
+
+	assert.Equal(t, []int{3, 2, 1}, r1)
+}

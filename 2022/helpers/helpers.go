@@ -121,3 +121,38 @@ func NewSet[E comparable](s []E) Set[E] {
 
 	return m
 }
+
+func Reverse[A any](a []A) []A {
+	for i, j := 0, len(a)-1; i < j; i, j = i+1, j-1 {
+		a[i], a[j] = a[j], a[i]
+	}
+
+	return a
+}
+
+func Abs(a int) int {
+	if a < 0 {
+		return a * -1
+	}
+	return a
+}
+
+func Min(a int, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+func MakeRange(min, max int) []int {
+	a := make([]int, Abs(max-min)+1)
+	for i := range a {
+		if min < max {
+			a[i] = min + i
+		} else {
+			a[i] = min - i
+		}
+	}
+
+	return a
+}
