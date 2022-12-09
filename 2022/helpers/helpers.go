@@ -122,6 +122,18 @@ func NewSet[E comparable](s []E) Set[E] {
 	return m
 }
 
+func (this *Set[E]) Add(e E) {
+	(*this)[e] = true
+}
+
+func (this *Set[E]) AsSlice() (out []E) {
+	for k := range map[E]bool(*this) {
+		out = append(out, k)
+	}
+
+	return out
+}
+
 func Reverse[A any](a []A) []A {
 	for i, j := 0, len(a)-1; i < j; i, j = i+1, j-1 {
 		a[i], a[j] = a[j], a[i]
