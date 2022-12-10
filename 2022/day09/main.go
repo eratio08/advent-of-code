@@ -56,6 +56,30 @@ func (this *Position) left() Position {
 		y: this.y,
 	}
 }
+func (this *Position) upRight() Position {
+	return Position{
+		x: this.x + 1,
+		y: this.y + 1,
+	}
+}
+func (this *Position) upLeft() Position {
+	return Position{
+		x: this.x - 1,
+		y: this.y + 1,
+	}
+}
+func (this *Position) downLeft() Position {
+	return Position{
+		x: this.x - 1,
+		y: this.y - 1,
+	}
+}
+func (this *Position) downRight() Position {
+	return Position{
+		x: this.x + 1,
+		y: this.y - 1,
+	}
+}
 
 func (this *Position) touches(other *Position) bool {
 	dx := helpers.Abs(this.x - other.x)
@@ -89,12 +113,10 @@ func simulate(lines []string) int {
 			}
 		}
 	}
-
 	set := helpers.NewSet(tailPositions)
 	values := set.AsSlice()
-	fmt.Println(len(tailPositions), len(values))
 
-	return 0
+	return len(values)
 }
 
 func part1(file string) int {
@@ -103,6 +125,99 @@ func part1(file string) int {
 	return simulate(lines)
 }
 
+func (this *Position) moveTo(other *Position) Position {
+	dy := this.y - other.y
+	dx := this.x - other.x
+
+	if dx == 0 {
+		/* vertical */
+		if dy < -1 {
+			// below
+			return this.up()
+		} else if dy > 1 {
+			// above
+			return this.down()
+		}
+	} else if dy == 0 {
+		/* horizontal */
+		if dx < -1 {
+			//left
+			return this.right()
+		} else if dx > 1 {
+			//right
+			return this.left()
+		}
+	} else {
+		/* diagonal */
+		d := helpers.Abs((dx * dy) / 2)
+		if d >= 1 {
+			if this.x > other.y && this.y > other.y {
+				//top right
+				return this.downLeft()
+			} else if this.x < other.x && this.y > other.y {
+				// top left
+				return this.downRight()
+			} else if this.x < other.x && this.y < other.y {
+				// bottom left
+				return this.upRight()
+			} else if this.x > other.x && this.y < other.y {
+				//bottom right
+				return this.upLeft()
+			}
+		}
+	}
+
+	return *this
+}
+
+func simulateN(lines []string, n int) int {
+	moves := parseMove(lines)
+	head := Position{x: 0, y: 0}
+	knots := make([]Position, 0, n)
+	for i := 0; i < n; i++ {
+		knots = append(knots, Position{x: 0, y: 0})
+	}
+	tailPositions := make([]Position, 0, len(moves))
+
+	for _, move := range moves {
+		for i := 0; i < move.steps; i++ {
+			switch move.direction {
+			case "U":
+				head = head.up()
+			case "D":
+				head = head.down()
+			case "R":
+				head = head.right()
+			case "L":
+				head = head.left()
+			}
+			currentHead := head
+			for i, knot := range knots {
+				maybeNewPos := knot.moveTo(&currentHead)
+				// fmt.Println("move", move, "knot", knot, "currentHead", currentHead, "maybeNewPos", maybeNewPos)
+				knots[i] = maybeNewPos
+				currentHead = maybeNewPos
+			}
+			tailPositions = append(tailPositions, knots[len(knots)-1])
+		}
+		fmt.Println(move, head, "->", knots, "<-", tailPositions)
+	}
+	set := helpers.NewSet(tailPositions)
+	values := set.AsSlice()
+	// fmt.Println(tailPositions)
+	// fmt.Println(values)
+
+	return len(values)
+}
+func part2(file string) int {
+	lines := helpers.ReadLines(file)
+
+	return simulateN(lines, 9)
+}
+
 func main() {
 	fmt.Println(part1("input"))
+	// fmt.Println(part2("input"))
+	// fmt.Println(part2("test2"))
+	fmt.Println(part2("test"))
 }
