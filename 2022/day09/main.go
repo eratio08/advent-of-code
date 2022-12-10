@@ -151,7 +151,7 @@ func (this *Position) moveTo(other *Position) Position {
 		/* diagonal */
 		d := helpers.Abs((dx * dy) / 2)
 		if d >= 1 {
-			if this.x > other.y && this.y > other.y {
+			if this.x > other.x && this.y > other.y {
 				//top right
 				return this.downLeft()
 			} else if this.x < other.x && this.y > other.y {
@@ -172,10 +172,10 @@ func (this *Position) moveTo(other *Position) Position {
 
 func simulateN(lines []string, n int) int {
 	moves := parseMove(lines)
-	head := Position{x: 0, y: 0}
+	head := Position{x: 40, y: 5}
 	knots := make([]Position, 0, n)
 	for i := 0; i < n; i++ {
-		knots = append(knots, Position{x: 0, y: 0})
+		knots = append(knots, Position{x: head.x, y: head.y})
 	}
 	tailPositions := make([]Position, 0, len(moves))
 
@@ -194,21 +194,43 @@ func simulateN(lines []string, n int) int {
 			currentHead := head
 			for i, knot := range knots {
 				maybeNewPos := knot.moveTo(&currentHead)
-				// fmt.Println("move", move, "knot", knot, "currentHead", currentHead, "maybeNewPos", maybeNewPos)
 				knots[i] = maybeNewPos
 				currentHead = maybeNewPos
 			}
 			tailPositions = append(tailPositions, knots[len(knots)-1])
 		}
-		fmt.Println(move, head, "->", knots, "<-", tailPositions)
 	}
 	set := helpers.NewSet(tailPositions)
 	values := set.AsSlice()
-	// fmt.Println(tailPositions)
-	// fmt.Println(values)
 
 	return len(values)
 }
+
+func draw(x, y int, positions []Position) {
+	for j := y - 1; j >= 0; j-- {
+		for i := 0; i < x; i++ {
+			notKnot := true
+			for z, pos := range positions {
+				if pos.x == i && pos.y == j {
+					notKnot = false
+					if z == 0 {
+						fmt.Print("H")
+					} else {
+						fmt.Print(z)
+					}
+				}
+			}
+
+			if notKnot {
+				fmt.Print(".")
+			}
+			notKnot = true
+		}
+
+		fmt.Println()
+	}
+}
+
 func part2(file string) int {
 	lines := helpers.ReadLines(file)
 
@@ -217,7 +239,5 @@ func part2(file string) int {
 
 func main() {
 	fmt.Println(part1("input"))
-	// fmt.Println(part2("input"))
-	// fmt.Println(part2("test2"))
-	fmt.Println(part2("test"))
+	fmt.Println(part2("input"))
 }
