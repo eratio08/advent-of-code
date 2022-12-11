@@ -26,6 +26,7 @@ func part1(lines []string) int {
 
 func tick(x, cycle, sum int) (int, int) {
 	drawPosition := cycle % 40
+	/* spride is 3 pixels wide XXX */
 	if drawPosition >= x-1 && drawPosition <= x+1 {
 		fmt.Print("#")
 	} else {
