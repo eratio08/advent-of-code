@@ -19,18 +19,16 @@ func TestCons(t *testing.T) {
 
 func TestFoldr(t *testing.T) {
 	xs := Cons(1, 2, 3)
-	add := func(a int, b *int) int { return a + *b }
-	tmp := 0
-	sum := Foldr(add)(&tmp)(&xs)
+	add := func(a int, b int) int { return a + b }
+	sum := Foldr(add)(0)(&xs)
 
 	assert.Equal(t, 6, sum, "Foldr should sum up")
 }
 
 func TestFoldl(t *testing.T) {
 	xs := Cons(1, 2, 3)
-	add := func(a int, b *int) int { return a + *b }
-	tmp := 0
-	sum := Foldr(add)(&tmp)(&xs)
+	add := func(a int, b int) int { return a + b }
+	sum := Foldr(add)(0)(&xs)
 
 	assert.Equal(t, 6, sum, "Foldl should sum up")
 }

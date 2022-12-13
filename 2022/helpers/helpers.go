@@ -15,7 +15,7 @@ func ReadFile(input string) string {
 	}
 
 	content := string(fileContent)
-	return content[:len(content)-1]
+	return content[:len(content)-2]
 }
 
 func ReadLines(input string) []string {
@@ -123,8 +123,19 @@ func NewSet[E comparable](s []E) Set[E] {
 	return m
 }
 
-func (this *Set[E]) Add(e E) {
-	(*this)[e] = true
+func (this *Set[E]) Add(e E) bool {
+	_, ok := (*this)[e]
+	if ok {
+		return false
+	} else {
+		(*this)[e] = true
+		return true
+	}
+}
+
+func (this *Set[E]) Contains(e E) bool {
+	_, ok := (map[E]bool(*this))[e]
+	return ok
 }
 
 func (this *Set[E]) AsSlice() (out []E) {
