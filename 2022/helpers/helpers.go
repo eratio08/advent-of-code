@@ -45,6 +45,13 @@ func Map[A any, B any](f func(A) B) func([]A) []B {
 	}
 }
 
+func FlatMap[A any, B any](f func(A) []B) func([]A) []B {
+	return func(as []A) (out []B) {
+		apply := func(a A, b []B) []B { return append(b, f(a)...) }
+		return Foldr(apply)(out)(as)
+	}
+}
+
 func Filter[A any](p func(A) bool) func([]A) []A {
 	return func(as []A) (out []A) {
 		filter := func(a A, res []A) []A {
@@ -79,6 +86,10 @@ func ToInt(s string) int {
 	}
 
 	return val
+}
+
+func ToUint(s string) uint {
+	return uint(ToInt(s))
 }
 
 func TakeWhile[I any](l []I, p func(i int, e I) bool) []I {
