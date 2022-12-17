@@ -3,6 +3,7 @@ package main
 import (
 	"aoc2022/helpers"
 	"fmt"
+	"sort"
 	"strings"
 )
 
@@ -14,6 +15,9 @@ type Packet struct {
 
 func (this Packet) String() string {
 	if len(this.children) == 0 {
+		if this.value == -1 {
+			return fmt.Sprint("")
+		}
 		return fmt.Sprint(this.value)
 	}
 
@@ -32,6 +36,14 @@ func parsePacket(chars string) Packet {
 			current.children = append(current.children, newPacket)
 			current = newPacket
 		case ']':
+			var i int
+			if len(num) > 0 {
+				i = helpers.ToInt(num)
+			} else {
+				i = -1
+			}
+			current.children = append(current.children, &Packet{i, []*Packet{}, current})
+			num = ""
 			current = current.parent
 		case ',':
 			var i int
@@ -59,8 +71,6 @@ func parsePackets(pair string) (left Packet, right Packet) {
 }
 
 func compare(left Packet, right Packet) int {
-	// fmt.Printf("Compare %v vs %v\n", left, right)
-
 	switch {
 	/* both leafs */
 	case len(left.children) == 0 && len(right.children) == 0:
@@ -103,10 +113,7 @@ func part1(content string) int {
 	res := 0
 	for i, pair := range pairs {
 		left, right := parsePackets(pair)
-		fmt.Println(left)
-		fmt.Println(right)
 		ord := compare(left, right)
-		fmt.Println(ord)
 
 		if ord == 1 {
 			res += i + 1
@@ -116,9 +123,43 @@ func part1(content string) int {
 	return res
 }
 
+func part2(content string) int {
+	splitLines := func(l string) []string {
+		return strings.Split(l, "\n")
+	}
+	lines := helpers.FlatMap(splitLines)(strings.Split(content, "\n\n"))
+	lines = lines[:len(lines)-1]
+	packets := helpers.Map(parsePacket)(lines)
+	devider := helpers.Map(parsePacket)([]string{"[[2]]", "[[6]]"})
+	packets = append(packets, devider...)
+
+	sort.Slice(packets, func(i, j int) bool {
+		a := packets[i]
+		b := packets[j]
+		return compare(a, b) == 1
+	})
+
+	idx := []int{}
+	for i, p := range packets {
+		if len(p.children) == 2 {
+			v := p.children[0]
+			if len(v.children) == 1 {
+				u := v.children[0]
+				if len(u.children) == 0 && (u.value == 2 || u.value == 6) {
+					idx = append(idx, i+1)
+				}
+			}
+		}
+	}
+
+	return idx[0] * idx[1]
+}
+
 func main() {
 	test := helpers.ReadFile("test")
 	input := helpers.ReadFile("input")
 	fmt.Println(part1(test))
 	fmt.Println(part1(input))
+	fmt.Println(part2(test))
+	fmt.Println(part2(input))
 }
