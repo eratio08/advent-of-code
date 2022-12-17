@@ -79,6 +79,14 @@ func Values[K comparable, V any](m map[K]V) (out []V) {
 	return out
 }
 
+func Keys[K comparable, V any](m map[K]V) (out []K) {
+	for k := range m {
+		out = append(out, k)
+	}
+
+	return out
+}
+
 func ToInt(s string) int {
 	val, err := strconv.Atoi(s)
 	if err != nil {

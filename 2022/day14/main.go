@@ -6,33 +6,73 @@ import (
 	"strings"
 )
 
-type Kind uint
+type Matter uint
 
 const (
-	Rock Kind = iota
+	Rock Matter = iota
 	Sand
 )
 
-type Cave struct {
-	matter     [Y_MAX][X_MAX]*Matter
-	movingSand *Matter
+func (this Matter) String() string {
+	switch this {
+	case Rock:
+		return "#"
+	case Sand:
+		return "o"
+	default:
+		return "."
+	}
 }
 
-type Matter struct {
-	x int
-	y int
-	t Kind
+type Cave struct {
+	matter     map[Pos]Matter
+	movingSand *Pos
+	minPos     Pos
+	maxPos     Pos
+	maxSand    int
+}
+
+type Pos struct {
+	x, y int
 }
 
 type Path struct {
 	points [][2]int
 }
 
+func (this *Path) toPos() (out []Pos) {
+	prev := this.points[0]
+	for _, point := range this.points[1:] {
+		xprev := prev[0]
+		yprev := prev[1]
+		x := point[0]
+		y := point[1]
+		/* horizontal */
+		if y-yprev == 0 {
+			for _, xn := range helpers.MakeRange(xprev, x) {
+
+				out = append(out, Pos{xn, y})
+			}
+		}
+		/* vertical */
+		if x-xprev == 0 {
+			for _, yn := range helpers.MakeRange(yprev, y) {
+				out = append(out, Pos{x, yn})
+			}
+		}
+		prev = point
+	}
+
+	/* has duplicates */
+	return out
+
+}
+
 const (
 	X_OFFSET int = 480
 	X_MAX    int = 550 - X_OFFSET
 	Y_MAX    int = 170
-	SAND_X       = 500 - X_OFFSET
+	SAND_X       = 500
 )
 
 func parsePath(line string) Path {
@@ -40,7 +80,7 @@ func parsePath(line string) Path {
 	path := Path{}
 	for _, point := range points {
 		coord := strings.Split(point, ",")
-		path.points = append(path.points, [2]int{helpers.ToInt(coord[0]) - X_OFFSET, helpers.ToInt(coord[1])})
+		path.points = append(path.points, [2]int{helpers.ToInt(coord[0]), helpers.ToInt(coord[1])})
 	}
 
 	return path
@@ -55,55 +95,41 @@ func parsePaths(lines []string) (out []*Path) {
 	return out
 }
 
-func (this *Path) toRocks() (out []*Matter) {
-	prev := this.points[0]
-	for _, point := range this.points[1:] {
-		xprev := prev[0]
-		yprev := prev[1]
-		x := point[0]
-		y := point[1]
-		/* horizontal */
-		if y-yprev == 0 {
-			for _, xn := range helpers.MakeRange(xprev, x) {
-
-				out = append(out, &Matter{xn, y, Rock})
-			}
-		}
-		/* vertical */
-		if x-xprev == 0 {
-			for _, yn := range helpers.MakeRange(yprev, y) {
-				out = append(out, &Matter{x, yn, Rock})
-			}
-		}
-		prev = point
-	}
-
-	/* has duplicates */
-	return out
-}
-
 func newCave(paths []*Path) Cave {
-	rocks := helpers.FlatMap(func(p *Path) []*Matter { return p.toRocks() })(paths)
-	sand := &Matter{SAND_X, 0, Sand}
-	cave := Cave{[Y_MAX][X_MAX]*Matter{}, sand}
-	cave.matter[0][SAND_X] = sand
+	rocks := helpers.FlatMap(func(p *Path) []Pos { return p.toPos() })(paths)
+	sand := Pos{SAND_X, 0}
+	yMax := 0
+	xMin := 500
+	xMax := 0
+	for _, k := range rocks {
+		if k.x < xMin {
+			xMin = k.x
+		}
+		if k.x > xMax {
+			xMax = k.x
+		}
+		if k.y > yMax {
+			yMax = k.y
+		}
+	}
+	cave := Cave{map[Pos]Matter{}, &sand, Pos{xMin, 0}, Pos{xMax, yMax}, 0}
+	cave.matter[sand] = Sand
 	for _, rock := range rocks {
-		cave.matter[rock.y][rock.x] = rock
+		cave.matter[rock] = Rock
 	}
 
 	return cave
 }
 
 func (this Cave) String() (out string) {
-	for y := 0; y < Y_MAX; y++ {
-		for x := 0; x < X_MAX; x++ {
-			matter := this.matter[y][x]
-			if matter == nil {
+	for y := 0; y <= this.maxPos.y; y++ {
+		for x := this.minPos.x; x <= this.maxPos.x; x++ {
+			p := Pos{x, y}
+			matter, ok := this.matter[p]
+			if !ok {
 				out = fmt.Sprint(out, ".")
-			} else if matter.t == Rock {
-				out = fmt.Sprint(out, "#")
 			} else {
-				out = fmt.Sprint(out, "O")
+				out = fmt.Sprint(out, matter)
 			}
 		}
 		out = fmt.Sprint(out, "\n")
@@ -113,35 +139,49 @@ func (this Cave) String() (out string) {
 }
 
 func (this *Cave) tick() {
+	moves := [][2]int{{0, 1}, {-1, 1}, {1, 1}}
 	if this.movingSand == nil {
-		return
+		this.movingSand = &Pos{SAND_X, 0}
+		this.matter[*this.movingSand] = Sand
 	}
 
-	sandX := this.movingSand.x
-	sandY := this.movingSand.y
-	/* try fall */
-	if this.matter[sandY+1][sandX] == nil {
-		this.movingSand.y = sandY + 1
-		this.matter[sandY][sandX] = nil
-		this.matter[sandY+1][sandX] = this.movingSand
-	} else
-	/* diagonal left */
-	if this.matter[sandY+1][sandX-1] == nil {
-		this.movingSand.x = sandX - 1
-		this.movingSand.y = sandY + 1
-		this.matter[sandY][sandX] = nil
-		this.matter[sandY+1][sandX-1] = this.movingSand
-	} else
-	/* diagonal right */
-	if this.matter[sandY+1][sandX+1] == nil {
-		this.movingSand.x = sandX + 1
-		this.movingSand.y = sandY + 1
-		this.matter[sandY][sandX] = nil
-		this.matter[sandY+1][sandX+1] = this.movingSand
-	} else {
-		// this.movingSand =
+	movingSand := this.movingSand
+	// fmt.Println("matter", this.matter)
+	// fmt.Println("current sand", this.movingSand)
+	for _, move := range moves {
+		nextX := movingSand.x + move[0]
+		nextY := movingSand.y + move[1]
+		nextSand := Pos{nextX, nextY}
+		// fmt.Println("nextSand", nextSand)
+		if _, ok := this.matter[nextSand]; ok {
+			// fmt.Println(nextSand, "exists", this.matter[nextSand])
+			continue
+		}
+
+		// fmt.Println("moving", this.movingSand, "to", nextSand)
+		delete(this.matter, *this.movingSand)
+		if nextSand.y > this.maxPos.y {
+			this.movingSand = nil
+			this.maxSand = this.countSand()
+			break
+		}
+		this.matter[nextSand] = Sand
+		this.movingSand = &nextSand
+		break
+	}
+	if this.movingSand != nil && *this.movingSand == *movingSand {
+		this.movingSand = nil
+	}
+}
+
+func (this *Cave) countSand() (count int) {
+	for _, v := range this.matter {
+		if v == Sand {
+			count += 1
+		}
 	}
 
+	return count
 }
 
 func part1(lines []string) int {
@@ -149,10 +189,15 @@ func part1(lines []string) int {
 	cave := newCave(paths)
 	fmt.Println(cave)
 
-	return 0
+	for cave.maxSand == 0 {
+		cave.tick()
+	}
+	fmt.Println(cave)
+
+	return cave.maxSand
 }
 
 func main() {
-	lines := helpers.ReadLines("test")
+	lines := helpers.ReadLines("input")
 	fmt.Println(part1(lines))
 }
