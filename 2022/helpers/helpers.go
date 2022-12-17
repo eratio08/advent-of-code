@@ -15,7 +15,7 @@ func ReadFile(input string) string {
 	}
 
 	content := string(fileContent)
-	return content[:len(content)-2]
+	return content
 }
 
 func ReadLines(input string) []string {

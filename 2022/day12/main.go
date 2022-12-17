@@ -3,26 +3,22 @@ package main
 import (
 	"aoc2022/helpers"
 	"fmt"
+	"math"
+	"sort"
 	"strings"
 )
 
-/*
- graphs
-  * dense = E > V -> matrix
-  * sparse = E < V -> lists
-*/
-
 type (
-	Graph struct {
+	Hill struct {
 		start   Point
 		end     Point
 		rows    int
 		columns int
-		heights [][]int
+		heights map[Point]int
 	}
-	Vertex struct {
-		cost  int
-		point Point
+	Graph struct {
+		v []Point
+		e map[Point][]Point
 	}
 	Point struct {
 		x int
@@ -30,60 +26,58 @@ type (
 	}
 )
 
-func (this Point) String() string {
+func (this Point) string() string {
 	return fmt.Sprintf("Point{x: %v, y: %v}", this.x, this.y)
 }
 
-func (this *Point) surroundings(rows, columns int) (out []Point) {
-	/* up */
-	if this.y > 0 {
-		out = append(out, Point{this.x, this.y - 1})
-	}
-	/* down */
-	if this.y < rows-1 {
-		out = append(out, Point{this.x, this.y + 1})
-	}
-	/* left */
-	if this.x > 0 {
-		out = append(out, Point{this.x - 1, this.y})
-	}
-	/* right */
-	if this.x < columns-1 {
-		out = append(out, Point{this.x + 1, this.y})
+func (this Graph) string() string {
+	return fmt.Sprintf("Graph{v: %v, e: %v}", this.v, this.e)
+}
+
+func (this *Hill) canMove(p1 *Point, p2 *Point) bool {
+	heightP1 := this.heights[*p1]
+	heightP2 := this.heights[*p2]
+
+	return heightP2 == heightP1+1 || heightP2 <= heightP1
+}
+
+func (this *Point) surroundings(hill *Hill) (out []Point) {
+	s := [][2]int{{0, -1}, {0, 1}, {-1, 0}, {1, 0}}
+	for _, d := range s {
+		p := Point{this.x + d[0], this.y + d[1]}
+		if p.y >= 0 && p.y < hill.rows && p.x >= 0 && p.x < hill.columns {
+			if hill.canMove(this, &p) {
+				out = append(out, p)
+			}
+		}
 	}
 
 	return out
 }
 
-func (this Vertex) String() string {
-	return fmt.Sprintf("Vertex{x: %v, y: %v}", this.point.x, this.point.y)
-}
-
-func buildGraph(lines []string) Graph {
+func newHill(lines []string) Hill {
 	rows := len(lines)
 	columns := len(lines[0])
 	var start Point
 	var end Point
-	heights := make([][]int, rows)
-	for j := 0; j < rows; j++ {
-		heights[j] = make([]int, columns)
-	}
+	heights := map[Point]int{}
 
 	for y, vs := range lines {
 		for x, v := range strings.Split(vs, "") {
+			p := Point{x, y}
 			if v == "S" {
-				heights[y][x] = int("a"[0])
-				start = Point{x, y}
+				heights[p] = int("a"[0])
+				start = p
 			} else if v == "E" {
-				heights[y][x] = int("z"[0])
-				end = Point{x, y}
+				heights[p] = int("z"[0])
+				end = p
 			} else {
-				heights[y][x] = int(v[0])
+				heights[p] = int(v[0])
 			}
 		}
 	}
 
-	return Graph{
+	return Hill{
 		start:   start,
 		end:     end,
 		rows:    rows,
@@ -92,46 +86,104 @@ func buildGraph(lines []string) Graph {
 	}
 }
 
-func (this *Graph) djikstra() int {
-	visited := helpers.NewSet([]string{})
-	queue := []Vertex{{0, this.start}}
+func (this *Hill) height(p *Point) int {
+	return this.heights[*p]
+}
 
-	for len(queue) != 0 {
-		v1 := queue[0]
-		fmt.Println("v1", v1)
-		if v1.point.x == this.end.x && v1.point.y == this.end.y {
-			return v1.cost
+func newGraph(hill *Hill) Graph {
+	vs := []Point{}
+	es := map[Point][]Point{}
+	for y := 0; y < hill.rows; y++ {
+		for x := 0; x < hill.columns; x++ {
+			v := Point{x, y}
+			vs = append(vs, v)
+			es[v] = v.surroundings(hill)
 		}
-		queue = queue[1:]
-		height := this.heights[v1.point.y][v1.point.x]
+	}
 
-		for _, point := range v1.point.surroundings(this.rows, this.columns) {
-			pointHeight := this.heights[point.y][point.x]
-			fmt.Println(point, pointHeight, height)
-			if pointHeight <= height || pointHeight == height+1 {
-				v2 := Vertex{v1.cost + 1, point}
-				fmt.Println(v2)
-				if visited.Add(fmt.Sprint(v2)) {
-					queue = append(queue, v2)
+	return Graph{
+		v: vs,
+		e: es,
+	}
+}
+
+func (this *Graph) djikstra(start Point, end Point) int {
+	dist := map[Point]int{}
+	prev := map[Point]*Point{}
+	visited := map[Point]bool{}
+	q := []Point{}
+
+	for _, v := range this.v {
+		dist[v] = math.MaxInt / 2
+		prev[v] = nil
+		q = append(q, v)
+	}
+
+	dist[start] = 0
+
+	for len(q) > 0 {
+		sort.Slice(q, func(i, j int) bool {
+			a := q[i]
+			b := q[j]
+			return dist[a] < dist[b]
+		})
+		u := q[0]
+		q = q[1:]
+		visited[u] = true
+
+		if u.x == end.x && u.y == end.y {
+			return dist[end]
+		}
+
+		for _, v := range this.e[u] {
+			if _, ok := visited[v]; !ok {
+				alt := dist[u] + 1 /* any distance to a naigbour is 1 here */
+
+				if alt < dist[v] {
+					dist[v] = alt
+					prev[v] = &u
 				}
 			}
 		}
-		fmt.Println("visited", visited)
-		fmt.Println("queue", queue)
-		fmt.Println()
 	}
 
 	panic("Did not find end")
 }
 
-func part1(lines []string) uint {
-	g := buildGraph(lines)
-	fmt.Println(g)
+func part1(lines []string) int {
+	h := newHill(lines)
+	g := newGraph(&h)
+	dist := g.djikstra(h.start, h.end)
 
-	return uint(g.djikstra())
+	return dist
+}
+
+func part2(lines []string) int {
+	h := newHill(lines)
+	g := newGraph(&h)
+
+	aPoints := []Point{}
+	lowest := h.heights[h.start]
+	for k, v := range h.heights {
+		if v == lowest {
+			aPoints = append(aPoints, k)
+		}
+	}
+
+	shortest := math.MaxInt
+	for _, p := range aPoints {
+		l := g.djikstra(p, h.end)
+		fmt.Println(p, "->", h.end, "=", l)
+		if l < shortest {
+			shortest = l
+		}
+	}
+
+	return shortest
 }
 
 func main() {
-	lines := helpers.ReadLines("test")
+	lines := helpers.ReadLines("input")
 	fmt.Println(part1(lines))
+	fmt.Println(part2(lines))
 }
