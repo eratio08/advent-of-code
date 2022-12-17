@@ -95,7 +95,7 @@ func parsePaths(lines []string) (out []*Path) {
 	return out
 }
 
-func newCave(paths []*Path) Cave {
+func newCave(paths []*Path, withFloor bool) Cave {
 	rocks := helpers.FlatMap(func(p *Path) []Pos { return p.toPos() })(paths)
 	sand := Pos{SAND_X, 0}
 	yMax := 0
@@ -112,8 +112,12 @@ func newCave(paths []*Path) Cave {
 			yMax = k.y
 		}
 	}
-	cave := Cave{map[Pos]Matter{}, &sand, Pos{xMin, 0}, Pos{xMax, yMax}, 0}
+	cave := Cave{map[Pos]Matter{}, &sand, Pos{xMin, 0}, Pos{xMax, yMax + 2}, 0}
 	cave.matter[sand] = Sand
+	if withFloor {
+		floorPath := Path{[][2]int{{0, yMax + 2}, {1000, yMax + 2}}}
+		rocks = append(rocks, floorPath.toPos()...)
+	}
 	for _, rock := range rocks {
 		cave.matter[rock] = Rock
 	}
@@ -146,19 +150,14 @@ func (this *Cave) tick() {
 	}
 
 	movingSand := this.movingSand
-	// fmt.Println("matter", this.matter)
-	// fmt.Println("current sand", this.movingSand)
 	for _, move := range moves {
 		nextX := movingSand.x + move[0]
 		nextY := movingSand.y + move[1]
 		nextSand := Pos{nextX, nextY}
-		// fmt.Println("nextSand", nextSand)
 		if _, ok := this.matter[nextSand]; ok {
-			// fmt.Println(nextSand, "exists", this.matter[nextSand])
 			continue
 		}
 
-		// fmt.Println("moving", this.movingSand, "to", nextSand)
 		delete(this.matter, *this.movingSand)
 		if nextSand.y > this.maxPos.y {
 			this.movingSand = nil
@@ -186,7 +185,7 @@ func (this *Cave) countSand() (count int) {
 
 func part1(lines []string) int {
 	paths := parsePaths(lines)
-	cave := newCave(paths)
+	cave := newCave(paths, false)
 	fmt.Println(cave)
 
 	for cave.maxSand == 0 {
@@ -197,7 +196,47 @@ func part1(lines []string) int {
 	return cave.maxSand
 }
 
+func (this *Cave) tick2() {
+	moves := [][2]int{{0, 1}, {-1, 1}, {1, 1}}
+	if this.movingSand == nil {
+		this.movingSand = &Pos{SAND_X, 0}
+		this.matter[*this.movingSand] = Sand
+	}
+
+	movingSand := this.movingSand
+	for _, move := range moves {
+		nextX := movingSand.x + move[0]
+		nextY := movingSand.y + move[1]
+		nextSand := Pos{nextX, nextY}
+		if _, ok := this.matter[nextSand]; ok {
+			continue
+		}
+
+		delete(this.matter, *this.movingSand)
+		this.matter[nextSand] = Sand
+		this.movingSand = &nextSand
+		break
+	}
+	if this.movingSand != nil && *this.movingSand == *movingSand {
+		this.movingSand = nil
+	}
+}
+
+func part2(lines []string) int {
+	paths := parsePaths(lines)
+	cave := newCave(paths, true)
+
+	for i := 0; i < 10_000_000; i++ {
+		cave.tick2()
+	}
+	fmt.Println(cave)
+
+	return cave.countSand()
+
+}
+
 func main() {
 	lines := helpers.ReadLines("input")
-	fmt.Println(part1(lines))
+	// fmt.Println(part1(lines))
+	fmt.Println(part2(lines))
 }
