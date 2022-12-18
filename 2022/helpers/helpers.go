@@ -1,6 +1,7 @@
 package helpers
 
 import (
+	"errors"
 	"log"
 	"os"
 	"strconv"
@@ -180,8 +181,19 @@ func Abs(a int) int {
 	return a
 }
 
+func AbsDiff(a, b int) int {
+	return Abs(a - b)
+}
+
 func Min(a int, b int) int {
 	if a < b {
+		return a
+	}
+	return b
+}
+
+func Max(a, b int) int {
+	if a > b {
 		return a
 	}
 	return b
@@ -198,4 +210,31 @@ func MakeRange(min, max int) []int {
 	}
 
 	return a
+}
+
+func Contains[A comparable](it A, as []A) bool {
+	for _, a := range as {
+		if a == it {
+			return true
+		}
+	}
+
+	return false
+}
+
+func IndexOf[A any](p func(a A) bool) func([]A) (int, error) {
+	return func(as []A) (int, error) {
+		for i, a := range as {
+			if p(a) {
+				return i, nil
+			}
+		}
+		return -1, errors.New("Not found")
+	}
+}
+
+func All[A any](p func(a A) bool) func([]A) bool {
+	return func(as []A) bool {
+		return Foldr(func(a A, acc bool) bool { return acc && p(a) })(true)(as)
+	}
 }
