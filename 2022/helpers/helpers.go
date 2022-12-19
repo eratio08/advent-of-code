@@ -199,6 +199,13 @@ func Max(a, b int) int {
 	return b
 }
 
+func MaxUint(a, b uint) uint {
+	if a > b {
+		return a
+	}
+	return b
+}
+
 func MakeRange(min, max int) []int {
 	a := make([]int, Abs(max-min)+1)
 	for i := range a {
