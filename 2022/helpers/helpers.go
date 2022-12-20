@@ -1,7 +1,6 @@
 package helpers
 
 import (
-	"errors"
 	"log"
 	"os"
 	"strconv"
@@ -181,8 +180,11 @@ func Abs(a int) int {
 	return a
 }
 
-func AbsDiff(a, b int) int {
-	return Abs(a - b)
+func AbsDiff[A int | uint](a, b A) A {
+	if a > b {
+		return a - b
+	}
+	return b - a
 }
 
 func Min(a int, b int) int {
@@ -229,14 +231,14 @@ func Contains[A comparable](it A, as []A) bool {
 	return false
 }
 
-func IndexOf[A any](p func(a A) bool) func([]A) (int, error) {
-	return func(as []A) (int, error) {
+func IndexOf[A any](p func(a A) bool) func([]A) int {
+	return func(as []A) int {
 		for i, a := range as {
 			if p(a) {
-				return i, nil
+				return i
 			}
 		}
-		return -1, errors.New("Not found")
+		return -1
 	}
 }
 
