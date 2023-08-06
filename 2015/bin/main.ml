@@ -28,12 +28,21 @@ let d3 =
 
   let other_houses = D03.deliver_packages_with_robo input in
   Int.to_string other_houses |> print_endline;
+  ()
 
+let d4 =
+  print_endline "## Day 04 ##";
+  let num = D04.mine "bgvyzdsv" 5 in
+  Int.to_string num |> print_endline;
+
+  let num = D04.mine "bgvyzdsv" 6 in
+  Int.to_string num |> print_endline;
   ()
 
 let () =
   d1;
   d2;
   d3;
+  d4;
 
   ()
