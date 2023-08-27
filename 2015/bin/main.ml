@@ -39,13 +39,22 @@ open Aoc2015
 (*   () *)
 (* ;; *)
 
-let d5 =
-  print_endline "## Day 05 ##";
-  let input = Input.read_lines "input/d05" in
-  let num = D05.count_nice input in
-  Int.to_string num |> print_endline;
-  D05.count_nice' input |> Int.to_string |> print_endline;
-  ()
+(* let d5 = *)
+(*   print_endline "## Day 05 ##"; *)
+(*   let input = Input.read_lines "input/d05" in *)
+(*   let num = D05.count_nice input in *)
+(*   Int.to_string num |> print_endline; *)
+(*   D05.count_nice' input |> Int.to_string |> print_endline; *)
+(*   () *)
+(* ;; *)
+
+let d6 =
+  print_endline "## Day 06 ##";
+  let input = Input.read_lines "input/d06" in
+  let lit_lights = D06.lit_lights input in
+  lit_lights |> Int.to_string |> print_endline;
+  let lit_lights = D06.lit_lights' input in
+  lit_lights |> Int.to_string |> print_endline;
 ;;
 
 let () =
@@ -53,6 +62,7 @@ let () =
   (* d2; *)
   (* d3; *)
   (* d4; *)
-  d5;
+  (* d5; *)
+  d6;
   ()
 ;;
