@@ -40,22 +40,31 @@ module Game = struct
 
   let id t = t.id
 
-  (** Expects string like
-      `Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red` *)
-  let of_string line : t =
+  let cubes_of_string line =
     let game_prefix = line |> String.take_while ~f:(fun c -> Char.equal ':' c |> not) in
     let id =
       game_prefix |> String.lsplit2_exn ~on:' ' |> Advent.Tuple.second |> Int.of_string
     in
-    String.drop_prefix line (String.length game_prefix + 1)
-    |> String.split ~on:';'
-    |> List.bind ~f:(fun set -> String.split ~on:',' set |> List.map ~f:Cube.of_string)
-    |> List.fold ~init:(empty_game id) ~f:add_cube
+    let cubes =
+      String.drop_prefix line (String.length game_prefix + 1)
+      |> String.split ~on:';'
+      |> List.bind ~f:(fun set -> String.split ~on:',' set |> List.map ~f:Cube.of_string)
+    in
+    id, cubes
+  ;;
+
+  (** Expects string like
+      `Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red` *)
+  let of_string line : t =
+    let id, cubes = cubes_of_string line in
+    cubes |> List.fold ~init:(empty_game id) ~f:add_cube
   ;;
 
   let contains game1 game2 =
     game1.red >= game2.red && game1.green >= game2.green && game1.blue >= game2.blue
   ;;
+
+  let power t = t.red * t.green * t.blue
 end
 
 let () =
@@ -68,4 +77,11 @@ let () =
   in
   Fmt.pr "%d@\n" score;
   ()
+;;
+
+let () =
+  let lines = Advent.Input.read_lines "input/day02" in
+  let games = lines |> List.map ~f:Game.of_string in
+  let score = games |> List.map ~f:Game.power |> List.fold ~init:0 ~f:( + ) in
+  Fmt.pr "%d@\n" score
 ;;
