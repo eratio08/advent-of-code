@@ -26,6 +26,21 @@ module Race = struct
     |> List.map ~f:(fun (time, distance) -> { time; distance })
   ;;
 
+  let parse' lines =
+    let line_to_num line =
+      String.to_list line
+      |> List.drop_while ~f:(fun c -> Char.is_digit c |> not)
+      |> String.of_list
+      |> String.split ~on:' '
+      |> List.filter ~f:(fun x -> String.is_empty x |> not)
+      |> String.concat
+      |> Int.of_string
+    in
+    let time = List.nth_exn lines 0 |> line_to_num in
+    let distance = List.nth_exn lines 1 |> line_to_num in
+    { time; distance }
+  ;;
+
   let find_bounds { time; distance } =
     let distance = Float.of_int distance in
     let time = Float.of_int time in
@@ -55,5 +70,8 @@ let () =
       let wins = Race.possible_wins r in
       wins * acc)
   in
-  Fmt.pr "%d\n" wins
+  Fmt.pr "%d\n" wins;
+  let race = Race.parse' lines in
+  let wins' = Race.possible_wins race in
+  Fmt.pr "%d\n" wins'
 ;;
