@@ -1,6 +1,6 @@
 (executables
- (public_names d1 d2 d3 d4 d5 d6 d7 d8 d9 d10)
- (names day01 day02 day03 day04 day05 day06 day07 day08 day09 day10)
+ (public_names d1 d2 d3 d4 d5 d6 d7 d8 d9 d10 d11)
+ (names day01 day02 day03 day04 day05 day06 day07 day08 day09 day10 day11)
  (libraries advent fmt)
  (preprocess (pps ppx_jane)))
 
