@@ -24,10 +24,10 @@ let rotate_cw_90 m =
   t
 ;;
 
-let to_m ls =
+let to_m ls ~init =
   let dimx = List.hd_exn ls |> List.length in
   let dimy = List.length ls in
-  let m = Array.make_matrix ~dimx ~dimy '.' in
+  let m = Array.make_matrix ~dimx ~dimy init in
   List.foldi ls ~init:m ~f:(fun j m l ->
     List.foldi l ~init:m ~f:(fun i m p ->
       m.(i).(j) <- p;
