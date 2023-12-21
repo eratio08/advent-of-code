@@ -19,7 +19,7 @@
  (name aoc_2023)
  (synopsis "A short synopsis")
  (description "A longer description")
- (depends ocaml dune)
+ (depends ocaml dune stdio core fmt ppx_jave ppx_deriving ppx_let alcotest)
  (allow_empty)
  (tags
   (topics "to describe" your project)))

@@ -12,6 +12,13 @@ bug-reports: "https://github.com/username/reponame/issues"
 depends: [
   "ocaml"
   "dune" {>= "3.11"}
+  "stdio"
+  "core"
+  "fmt"
+  "ppx_jave"
+  "ppx_deriving"
+  "ppx_let"
+  "alcotest"
   "odoc" {with-doc}
 ]
 build: [
