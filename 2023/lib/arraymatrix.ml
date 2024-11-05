@@ -34,8 +34,11 @@ let to_m ls ~init =
       m))
 ;;
 
+let dimx m = Array.length m
+let dimy m = Array.length m.(0)
+
 let of_m m =
-  let dimy = Array.length m.(0) in
+  let dimy = dimy m in
   let ly = List.init dimy ~f:(fun _ -> []) in
   Array.fold m ~init:ly ~f:(fun ly xys -> List.mapi ly ~f:(fun y l -> xys.(y) :: l))
 ;;

@@ -4,18 +4,12 @@ module Card = struct
   module IntSet = Core.Set.Make (Int)
 
   type t =
-    { nr : int
-    ; numbers : IntSet.t
-    ; winning : IntSet.t
-    ; matches : int
+    { matches : int
     ; worth : int
-    ; copies : int list
     }
 
-  let nr t = t.nr
   let worth t = t.worth
   let matches t = t.matches
-  let copies t = t.copies
 
   let count_matches number winning =
     let winning_numbers = Set.inter number winning in
@@ -27,7 +21,6 @@ module Card = struct
   (* Expecting `Card 1: 41 48 83 86 17 | 83 86  6 31 17  9 48 53` *)
   let of_string line : t =
     let card = line |> String.take_while ~f:(fun c -> Char.equal ':' c |> not) in
-    let nr = String.drop_prefix card 5 |> Stdlib.String.trim |> Int.of_string in
     let numbers, winning =
       String.drop_prefix line (String.length card + 1) |> String.lsplit2_exn ~on:'|'
     in
@@ -42,7 +35,7 @@ module Card = struct
     let winning = to_numbers winning |> IntSet.of_list in
     let matches = count_matches numbers winning in
     let worth = calc_worth matches in
-    { nr; numbers; winning; matches; worth; copies = [] }
+    { matches; worth }
   ;;
 end
 

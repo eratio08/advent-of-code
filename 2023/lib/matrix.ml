@@ -14,4 +14,3 @@ let get t ~i ~j =
 ;;
 
 let get_exn t ~i ~j = get t ~i ~j |> Option.value_exn
-

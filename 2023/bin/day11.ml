@@ -91,7 +91,6 @@ module Universe = struct
     let m = to_m ls in
     let mr = rotate_cw_90 m in
     let rls = of_m mr in
-    (* let ls_t = rotate_cw_90_ls ls in *)
     let ls_t = expand rls in
     rotate_ccw_90_ls ls_t
   ;;

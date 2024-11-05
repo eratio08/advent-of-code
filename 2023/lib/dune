@@ -1,3 +1,5 @@
 (library
- (name advent) 
- (libraries core stdio fmt))
+ (name advent)
+ (libraries core stdio fmt)
+ (preprocess
+  (pps ppx_jane ppx_deriving.show ppx_let)))

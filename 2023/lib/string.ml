@@ -19,3 +19,7 @@ let take str ~n = String.to_list str |> fun l -> List.take l n |> String.of_list
 let drop str ~n = String.to_list str |> fun l -> List.drop l n |> String.of_list
 let is_blank str = String.is_empty str || String.for_all str ~f:Char.is_whitespace
 let not_contains ~c str = String.contains str c |> not
+
+(*
+   some word to be word split on
+*)
