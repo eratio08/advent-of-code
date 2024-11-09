@@ -24,3 +24,9 @@ aoc2016-*.tar
 
 # Temporary files, for example, from tests.
 /tmp/
+
+# aoc inputs
+/inputs/
+
+# macos crap
+.DS_Store
