@@ -30,3 +30,7 @@ aoc2016-*.tar
 
 # macos crap
 .DS_Store
+
+# compiled
+*.beam
+.elixir-tools

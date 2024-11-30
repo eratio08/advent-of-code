@@ -1,12 +1,4 @@
 defmodule Day01 do
-  def get_input() do
-    {:ok, bytes} = File.read("../input/d01")
-    bytes
-
-    # "R8, R4, R4, R8"
-    # "R5, L5, R5, R3"
-  end
-
   defmodule Point do
     defstruct x: 0, y: 0
 
@@ -66,7 +58,7 @@ defmodule Day01 do
   end
 
   def part_1() do
-    [last_point | _] = Point.points_from_input(get_input())
+    [last_point | _] = Point.points_from_input(Helpers.get_input(1))
     IO.inspect(last_point)
 
     IO.puts(Point.taxi_distance(Point.new(), last_point))
@@ -74,7 +66,7 @@ defmodule Day01 do
 
   def part_2() do
     point =
-      Point.points_from_input(get_input())
+      Point.points_from_input(Helpers.get_input(1))
       |> Enum.reverse()
       |> Enum.reduce_while({MapSet.new(), nil}, fn p, {set, res} ->
         IO.inspect({p})
