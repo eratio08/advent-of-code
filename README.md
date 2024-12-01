@@ -3,6 +3,11 @@
 Collection of yearly [Advent of Code](https://adventofcode.com/) solution attempts.
 
 
+## [2024](https://adventofcode.com/2024)
+
+[Elixir](https://elixir-lang.org/) it is this year!
+
+
 ## [2023](https://adventofcode.com/2023)
 
 This year I'm trying out [OCaml](https://ocaml.org/)
