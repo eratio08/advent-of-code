@@ -24,17 +24,31 @@ defmodule M2 do
   end
 
   def reduce(m, acc, fun) do
-    Enum.reduce(0..(height(m) - 1), acc, fn y, acc ->
-      Enum.reduce(0..(width(m) - 1), acc, fn x, acc ->
-        fun.(get!(m, x, y), acc)
+    reduce_pos(m, acc, fn _, v -> fun.(v) end)
+  end
+
+  def reduce_pos(m, acc, fun) do
+    y_r = 0..(height(m) - 1)
+    x_r = 0..(width(m) - 1)
+
+    Enum.reduce(y_r, acc, fn y, acc ->
+      Enum.reduce(x_r, acc, fn x, acc ->
+        fun.({x, y}, get!(m, x, y), acc)
       end)
     end)
   end
 
   def map(m, fun) do
-    Enum.reduce(0..(height(m) - 1), m, fn y, m ->
-      Enum.reduce(0..(width(elem(m, 0)) - 1), m, fn x, m ->
-        put!(m, x, y, fun.(get!(m, x, y)))
+    map_pos(m, fn _, v -> fun.(v) end)
+  end
+
+  def map_pos(m, fun) do
+    y_r = 0..(height(m) - 1)
+    x_r = 0..(width(m) - 1)
+
+    Enum.reduce(y_r, m, fn y, m ->
+      Enum.reduce(x_r, m, fn x, m ->
+        put!(m, x, y, fun.({x, y}, get!(m, x, y)))
       end)
     end)
   end
