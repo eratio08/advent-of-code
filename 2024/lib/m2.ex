@@ -56,4 +56,8 @@ defmodule M2 do
   def as_list(m) do
     reduce(m, [], fn i, acc -> [i | acc] end) |> Enum.reverse()
   end
+
+  def as_list_pos(m) do
+    reduce_pos(m, [], fn pos, v, acc -> [{pos, v} | acc] end) |> Enum.reverse()
+  end
 end
