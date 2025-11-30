@@ -1,3 +1,5 @@
+import d04
+import gleam/dict
 import gleeunit
 
 pub fn main() -> Nil {
@@ -5,9 +7,27 @@ pub fn main() -> Nil {
 }
 
 // gleeunit test functions end in `_test`
-pub fn hello_world_test() {
-  let name = "Joe"
-  let greeting = "Hello, " <> name <> "!"
+pub fn eq_test() {
+  let eq =
+    d04.eq(
+      dict.from_list([#("a", 2), #("b", 2)]),
+      dict.from_list([#("a", 2), #("b", 2)]),
+    )
+  assert eq == True
 
-  assert greeting == "Hello, Joe!"
+  let eq =
+    d04.eq(
+      dict.from_list([#("a", 2), #("b", 2)]),
+      dict.from_list([#("a", 3), #("b", 2)]),
+    )
+
+  assert eq == False
+
+  let eq =
+    d04.eq(
+      dict.from_list([#("a", 2), #("b", 2)]),
+      dict.from_list([#("a", 2), #("b", 2), #("c", 2)]),
+    )
+
+  assert eq == False
 }

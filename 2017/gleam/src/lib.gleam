@@ -33,6 +33,10 @@ pub fn lines(path) {
   list.take(lines, len - 1)
 }
 
+pub fn words_lines(path) {
+  lines(path) |> list.map(fn(line) { string.split(line, on: " ") })
+}
+
 @external(erlang, "init", "get_plain_arguments")
 fn get_plain_arguments() -> List(List(Int))
 

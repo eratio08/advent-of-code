@@ -1,7 +1,5 @@
 module [part_1, part_2]
 
-# import ListArr
-
 input = 347991
 
 nr_on_ring = |ring|
