@@ -2,6 +2,9 @@
 
 Collection of yearly [Advent of Code](https://adventofcode.com/) solution attempts.
 
+## 2025
+
+Trying [Gleam](https://gleam.run/) this year.
 
 ## [2024](https://adventofcode.com/2024)
 
