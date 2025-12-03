@@ -21,9 +21,20 @@ pub fn chars(path) {
   list.take(lines, len - 1)
 }
 
+pub fn line_chars(path) {
+  lines(path)
+  |> list.map(fn(line) { string.split(line, on: "") })
+}
+
 pub fn ints(path) {
   let chars = chars(path)
   value_msg(list.try_map(chars, int.parse), "failed to parse chars as ints")
+}
+
+pub fn line_ints(path) {
+  line_chars(path)
+  |> list.try_map(fn(chars) { list.try_map(chars, int.parse) })
+  |> value_msg("failed to parse line chars as ints")
 }
 
 pub fn lines(path) {
