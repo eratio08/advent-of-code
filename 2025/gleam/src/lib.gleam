@@ -1,10 +1,13 @@
 import gleam/bit_array
+import gleam/dict
 import gleam/float
 import gleam/int
 import gleam/io
 import gleam/list
+import gleam/option
 import gleam/result
 import gleam/string
+import grid.{type Grid}
 
 @external(erlang, "file", "read_file")
 fn erl_read_file(path: String) -> Result(BitArray, reason)
@@ -48,6 +51,22 @@ pub fn words_lines(path) {
   lines(path) |> list.map(fn(line) { string.split(line, on: " ") })
 }
 
+pub fn read_grid(path) -> Grid(String) {
+  let lines = line_chars(path)
+
+  lines
+  |> list.index_map(fn(row, j) {
+    row |> list.index_map(fn(val, i) { #(#(i, j), val) })
+  })
+  |> list.flatten()
+  |> dict.from_list()
+  |> fn(g) {
+    let n = list.length(value(list.first(lines)))
+    let m = list.length(lines)
+    grid.Grid(g, n, m)
+  }
+}
+
 @external(erlang, "init", "get_plain_arguments")
 fn get_plain_arguments() -> List(List(Int))
 
@@ -89,4 +108,11 @@ pub fn value_msg(r: Result(a, b), msg: String) -> a {
 
 pub fn value(r: Result(a, b)) -> a {
   value_msg(r, "result was Error")
+}
+
+pub fn value_o(o: option.Option(a)) -> a {
+  case o {
+    option.Some(v) -> v
+    option.None -> panic as "option was None"
+  }
 }
