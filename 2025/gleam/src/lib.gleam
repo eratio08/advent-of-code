@@ -51,6 +51,15 @@ pub fn words_lines(path) {
   lines(path) |> list.map(fn(line) { string.split(line, on: " ") })
 }
 
+pub fn words_lines_trimmed(path) {
+  lines(path)
+  |> list.map(fn(line) {
+    string.split(line, on: " ")
+    |> list.map(string.trim)
+    |> list.filter(fn(w) { !string.is_empty(w) })
+  })
+}
+
 pub fn read_grid(path) -> Grid(String) {
   let lines = line_chars(path)
 
