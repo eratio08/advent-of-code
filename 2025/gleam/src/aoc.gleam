@@ -4,6 +4,7 @@ import d03
 import d04
 import d05
 import d06
+import d07
 import lib
 
 pub fn main() {
@@ -20,6 +21,8 @@ pub fn main() {
     ["5.2"] -> lib.run(d05.p2)
     ["6.1"] -> lib.run(d06.p1)
     ["6.2"] -> lib.run(d06.p2)
+    ["7.1"] -> lib.run(d07.p1)
+    ["7.2"] -> lib.run(d07.p2)
     _ -> panic as "Missing args"
   }
 }
