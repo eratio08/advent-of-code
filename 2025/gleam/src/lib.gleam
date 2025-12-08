@@ -98,8 +98,8 @@ pub fn timer(f: fn() -> a) -> #(Int, a)
 pub fn run(f: fn() -> Int) {
   let #(took_micro, n) = timer(f)
 
-  let took_ms = int.to_float(took_micro) /. 1000.0 /. 1000.0
-  io.println("\n🏁 Took " <> float.to_string(took_ms) <> "ms")
+  let took_s = int.to_float(took_micro) /. 1000.0 /. 1000.0
+  io.println("\n🏁 Took " <> float.to_string(took_s) <> "s")
   io.println("➡️ " <> int.to_string(n))
 
   Nil
