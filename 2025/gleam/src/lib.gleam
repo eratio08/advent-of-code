@@ -125,3 +125,14 @@ pub fn value_o(o: option.Option(a)) -> a {
     option.None -> panic as "option was None"
   }
 }
+
+pub fn int_list_max(l: List(Int)) -> Int {
+  l
+  |> list.sort(fn(a, b) { int.compare(b, a) })
+  |> list.first()
+  |> result.unwrap(0)
+}
+
+pub fn int_list_min(l: List(Int)) -> Int {
+  l |> list.sort(int.compare) |> list.first() |> result.unwrap(0)
+}
