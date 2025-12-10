@@ -136,3 +136,21 @@ pub fn int_list_max(l: List(Int)) -> Int {
 pub fn int_list_min(l: List(Int)) -> Int {
   l |> list.sort(int.compare) |> list.first() |> result.unwrap(0)
 }
+
+@external(erlang, "erlang", "integer_to_binary")
+fn erlang_integer_to_binary(n: Int, base: Int) -> String
+
+pub fn int_to_binary_string(n: Int) -> String {
+  erlang_integer_to_binary(n, 2)
+}
+
+pub fn to_binary_padded(n: Int, width: Int) -> String {
+  let binary = erlang_integer_to_binary(n, 2)
+  let current_len = string.length(binary)
+  let padding_needed = width - current_len
+
+  case padding_needed > 0 {
+    True -> string.repeat("0", padding_needed) <> binary
+    False -> binary
+  }
+}
